@@ -1,0 +1,37 @@
+<div class="container-fluid background">
+    <div class="row">
+        <div style="margin-top: 5vh;" class="col-sm-12 col-md-6 col-lg-4 mx-auto">
+            <div class="card border-success cardBorder">
+  
+                <div style="padding-top:30px; background-color: white" class="card-body text-center">
+                    <div class="text-center">
+                        <div>
+                            <h2>Welcome!!</h2>
+                        </div>
+                        <div>
+                            <!--h3>Ease Your Day</h3-->
+                            <img src="./../../../assets/app logo.png" alt="Ease Your Day" width="300" height="100" style="vertical-align:middle">
+                        </div>
+                        <hr>
+                        <div class="form-group">
+                        <label for="exampleInputEmail1" style="color: gray; float: left;">Email address<span style="color: red; font-size: 22px;">*</span></label>
+                        <input type="email" [(ngModel)]="email" name="email" id="inputEmail" class="form-control"  placeholder=" Email address" required
+                          autofocus>
+                        <br>
+                          <label for="inputPassword" style="color: gray; float: left;">Password<span style="color: red; font-size: 22px;">*</span></label>
+                         <input type="password" [(ngModel)]="password" name="password" id="inputPassword" class="form-control" placeholder="Password">
+                        </div>
+                        <hr>
+                        <div class="row p-3" style="display: flex; justify-content: space-between ">
+                          <button type="button" class="btn btn-primary" [routerLink]="['/signup/']">Register-Now</button>
+                          <button type="button" class="btn btn-success" (click)="signinFunction()">Log-in</button>
+                        </div>
+                        <br>
+                        <a [routerLink]="['/forget-password/']" style="float: right; color: red; cursor: pointer;">Forget Password Click here</a>
+                    </div>
+                </div>
+            </div>
+  
+        </div>
+    </div>
+  </div>

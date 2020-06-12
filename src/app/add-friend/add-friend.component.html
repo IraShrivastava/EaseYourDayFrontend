@@ -1,0 +1,75 @@
+<div class="background">
+  <div class="container"
+    style="background-color: white; border-left: 2px solid; border-right: 2px solid; height: 100vh;">
+    <div class="sticky-top" style=" padding: 2vh">
+      <button type="button" class="btn btn-primary btn-lg btn-block" style="font-size: 1.5em"
+        [routerLink]="['/dashboard']">Dashboard</button>
+    </div>
+    <ul class="nav nav-tabs" id="myTab" role="tablist">
+      <li class="nav-item tab-width">
+        <a class="nav-link active" id="addFriend-tab" data-toggle="tab" href="#addFriend" role="tab"
+          aria-controls="addFriend" aria-selected="true">Add Friends</a>
+      </li>
+      <li class="nav-item tab-width">
+        <a class="nav-link" id="friendList-tab" data-toggle="tab" href="#friendList" role="tab"
+          aria-controls="friendList" aria-selected="false">Friend List</a>
+      </li>
+      <li class="nav-item tab-width">
+        <a class="nav-link" id="request-tab" data-toggle="tab" href="#request" role="tab" aria-controls="request"
+          aria-selected="false">Requests <span
+            *ngIf="allRequestReceived.length">({{allRequestReceived.length}})</span></a>
+      </li>
+    </ul>
+    <div class="tab-content" id="myTabContent">
+      <div class="tab-pane fade show active" id="addFriend" role="tabpanel" aria-labelledby="addFriend-tab">
+        <div class="card" style="border-top: 0px" *ngFor="let user of allFilteredUser">
+          <div class="card-body" style="display: flex; justify-content: space-between">
+            <!--first-char [name]="user.firstName" [userBg]="'#007bff'" [userColor]="'white'"></first-char-->
+            <div (click)='nameClicked()' class="crop" [style.color]="'black'" [style.background]="'#007bff'">
+              {{firstChar}} </div>
+            <span
+              style="display: flex; text-align: center; font-size: 1.8em; color: #6c757d; font-style: bold">{{user.firstName+' '+user.lastName}}</span>
+            <div>
+              <button *ngIf="!user.id" type="button" class="btn btn-outline-success"
+                (click)="sendRequest(user.userId, user.firstName+' '+user.lastName)">Add Friend ></button>
+              <button *ngIf="user.id" type="button" class="btn btn-outline-danger"
+                (click)="cancelRequest(user.userId, user.firstName+' '+user.lastName)">Cancel Request </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="tab-pane fade" id="friendList" role="tabpanel" aria-labelledby="friendList-tab">
+        <div class="card" style="border-top: 0px" *ngFor="let user of allFriends">
+          <div class="card-body" style="display: flex; justify-content: space-between">
+            <!--first-char [name]="user.friendName" [userBg]="'#007bff'" [userColor]="'white'"></first-char-->
+            <div (click)='nameClicked()' class="crop" [style.color]="'black'" [style.background]="'#007bff'">
+              {{firstChar}} </div>
+            <span
+              style="display: flex; text-align: center; font-size: 1.8em; color: #6c757d; font-style: bold">{{user.friendName}}</span>
+
+            <button *ngIf="!user.id" type="button" class="btn btn-outline-danger"
+              (click)="unfriend(user.friendId, user.friendName)">UnFriend</button>
+
+          </div>
+        </div>
+      </div>
+      <div class="tab-pane fade" id="request" role="tabpanel" aria-labelledby="request-tab">
+        <div class="card" style="border-top: 0px" *ngFor="let user of allRequestReceived">
+          <div class="card-body" style="display: flex; justify-content: space-between">
+            <!--first-char [name]="user.senderName" [userBg]="'#007bff'" [userColor]="'white'"></first-char-->
+            <div (click)='nameClicked()' class="crop" [style.color]="'black'" [style.background]="'#007bff'">
+              {{firstChar}} </div>
+            <span
+              style="display: flex; text-align: center; font-size: 1.8em; color: #6c757d; font-style: bold">{{user.senderName}}</span>
+
+            <button type="button" class="btn btn-success btn-circle btn-lg"
+              (click)="acceptRequest(user.senderId, user.senderName)">Accept</button>
+            <button type="button" class="btn btn-danger btn-circle btn-lg"
+              (click)="rejectRequest(user.senderId, user.senderName)">Reject</button>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

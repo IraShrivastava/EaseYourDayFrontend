@@ -1,0 +1,12 @@
+/* You can add global styles to this file, and also import other style files */
+.background{
+    background-image: url('C:/Users/IRA/Desktop/edWisor/Project/To-Do List/To-Do-Frontend/src/app/background/web-background-2.jpg');
+    min-height: 100vh;
+}
+
+.ng-sidebar{
+    background-color: #f5f5f5;
+    border-right: 2px solid;
+    border-top: 2px solid;
+    border-radius: 10px;
+}

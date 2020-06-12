@@ -1,0 +1,291 @@
+<div class="background">
+  <nav class="navbar navbar-expand-lg navbar-dark">
+    <!--a class="navbar-brand navStyle" [routerLink]="['/dashboard']" style="color: white;">Ease Your Day</a-->
+    <img src="./../../../assets/app logo.png" alt="Ease Your Day" width="100" height="70" style="float: left; margin-top: 10px;">
+    <div style="display: inline-flex; align-items: center">
+      <div class="firstChar" (click)="onClick()" style="cursor: pointer; color: black; margin-left: 10px">{{firstChar}}</div>
+      <h3 style="text-transform:uppercase" class="name" style="color: white;">{{userName}}</h3>
+    </div>
+    <button class="navbar-toggler btn btn-light" data-toggle="collapse" data-target="#navbarSupportedContent"
+      aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent" style="justify-content: flex-end">
+      <div class="margin"><button style="width: 150px; margin-left: 20px" class="btn btn-primary"
+          [routerLink]="[ '/addFriend']">Friends</button></div>
+      <div class="margin"><button style="width: 150px; margin-left: 20px" class="btn btn-secondary"
+          (click)="logOut()">Log
+          Out </button></div>
+    </div>
+  </nav>
+
+  <div class="container">
+    <ul class="nav nav-tabs" id="myTab" role="tablist">
+      <li class="nav-item tab-width">
+        <a class="nav-link active" id="your-tab" data-toggle="tab" href="#your" role="tab" aria-controls="your"
+          aria-selected="true">Your Dashboard</a>
+      </li>
+      <li class="nav-item tab-width">
+        <a class="nav-link" id="friends-tab" data-toggle="tab" href="#friends" role="tab" aria-controls="friends"
+          aria-selected="false">Friends Dashboard</a>
+      </li>
+    </ul>
+    <div class="tab-content" id="myTabContent">
+      <div style="padding-top: 1vh" class="tab-pane tab-style fade show active" id="your" role="tabpanel"
+        aria-labelledby="your-tab">
+        <ng-sidebar-container style="height: 73vh;">
+
+          <!-- A sidebar -->
+          <ng-sidebar mode="push" [showBackdrop]="true" [closeOnClickOutside]="true" [(opened)]="_opened"
+            style="background-color: black">
+            <div style="padding: 1vh">
+              <div class="input-group mb-3">
+                <input type="text" [(ngModel)]="listName" name="listName" class="form-control" placeholder="List Name"
+                  aria-label="Recipient's username" aria-describedby="basic-addon2">
+                <div class="input-group-append">
+                  <button class="btn btn-success" type="button" (click)="createList(true)">Add</button>
+                </div>
+                <div style="margin-left: 2vh">
+                  <button type="button" class="btn btn-danger" (click)="_toggleSidebar()">Remove</button>
+                </div>
+              </div>
+
+              <div *ngFor="let list of listArray">
+                <ul class="list-group">
+                  <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <a (click)="chooseList(list.listId)" *ngIf="!list.id"
+                      style="font-size: 1.2em; color: blue; cursor: pointer;">{{list.listName}}</a>
+                    <input style="width: 18vh" *ngIf="list.id" type="text" [(ngModel)]=list.listName
+                      name="currentListName" class="form-control" aria-label="Recipient's username"
+                      aria-describedby="basic-addon2" (keypress)="editListName($event, list.listName, list)">
+                    <div>
+                      <a style="margin-right: 1vh; color: gray; cursor: pointer;" (click)="list.id = !list.id">Edit</a>
+                      <a style="margin-left: 1vh; color: red; cursor: pointer;" (click)="deleteList(list)">Remove</a>
+                    </div>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </ng-sidebar>
+
+          <!-- Page content -->
+          <div ng-sidebar-content style="margin-left: 1vh; margin-right: 1vh;">
+            <button type="button" class="btn btn-outline-primary btn-lg btn-block" (click)="_toggleSidebar()">Click To
+              Create or View Your List</button>
+            <div *ngIf="toggle">
+              <div *ngFor="let List of currentList" class="d-flex card p-2 my-2 border border-danger rounded allSides">
+                <div class="d-flex align-items-center my-2">
+                  <div class="lh-100">
+                    <h5 class="mb-0  lh-100">{{List.listName}}</h5>
+                    <h6>Created on - {{List.createdOn | date}}</h6>
+                  </div>
+                  <hr>
+                  <a style="color: green; cursor: pointer;" (click)="inputToggle= !inputToggle" data-toggle="tooltip"
+                    data-placement="bottom" title="Click to Add Task in the list">Add Task in List</a>
+                  <a style="margin-left: 5vh; color: red; cursor: pointer;" (click)="undoFunction(List.listId)"
+                    data-toggle="tooltip" data-placement="bottom" title="Click to Undo">Undo</a>
+                </div>
+                <div *ngIf="inputToggle" class="input-group mb-3">
+                  <input type="text" [(ngModel)]="itemName" name="itemName" class="form-control" placeholder="Task Name"
+                    aria-label="Recipient's username" aria-describedby="basic-addon2">
+                  <div class="input-group-append">
+                    <button class="btn btn-success" type="button" (click)="addItem(List)">Add</button>
+                  </div>
+                </div>
+                <hr>
+                <div *ngFor="let item of itemArray">
+                  <div class="col d-flex justify-content-between">
+                    <div class="row align-items-center">
+                      <div class="form-check">
+                        <input [(ngModel)]="item.done" class="form-check-input position-static" type="checkbox"
+                          id="blankCheckbox" value="option1" aria-label="..."
+                          (click)="editItem($event.target.click, item, !item.done, List)">
+                      </div>
+                      <span *ngIf="!item.a" [ngClass]="item.done  === true ? 'strike' : 'null'"
+                        style="font-size: 1.2em; font-style: 500; margin-left: 1vh">{{item.itemName}}</span>
+                      <input style="width: 18vh" *ngIf="item.a" type="text" [(ngModel)]=item.itemName
+                        name="currentItemName" class="form-control" aria-label="Recipient's username"
+                        aria-describedby="basic-addon2"
+                        (keypress)="editItem($event.keyCode === 13, item, item.done, List)">
+                    </div>
+                    <div>
+                      <a style="color: gray; cursor: pointer;" (click)="item.a= !item.a" data-toggle="tooltip"
+                        data-placement="bottom" title="Click to Edit Task">Edit Task</a>
+                      <a style="color: green; cursor: pointer; margin-left: 3vh;" (click)="item.id= !item.id"
+                        data-toggle="tooltip" data-placement="bottom" title="Click to Add Sub Task ">Add Sub Task</a>
+                      <a style="color: red; cursor: pointer; margin-left: 3vh;" (click)="deleteItem(item, List)"
+                        data-toggle="tooltip" data-placement="bottom" title="Click to Remove Task ">Remove</a>
+                    </div>
+                  </div>
+                  <div *ngIf=item.id class="input-group mb-3">
+                    <input type="text" [(ngModel)]="subItemName" name="subItemName" class="form-control"
+                      placeholder="Sub Task Name" aria-label="Recipient's username" aria-describedby="basic-addon2">
+                    <div class="input-group-append">
+                      <button class="btn btn-success" type="button"
+                        (click)="addSubItem(item, item.itemId, List)">Add</button>
+                    </div>
+                  </div>
+                  <div *ngFor="let subItem of item.subItems" class="col d-flex justify-content-between"
+                    style="margin-left: 5vh; width: 80%;">
+                    <div class="row align-items-center">
+                      <div class="form-check">
+                        <input [(ngModel)]="subItem.subItemDone" subItem.subItemDone=item.done
+                          class="form-check-input position-static" type="checkbox" id="blankCheckbox" value="option1"
+                          aria-label="..."
+                          (click)="editSubItem($event.target.click, subItem, item.itemId, !subItem.subItemDone,List)">
+                      </div>
+                      <span *ngIf="!subItem.a" [ngClass]="subItem.subItemDone === true ? 'strike' : 'null'"
+                        style="font-size: 1.2em; font-style: 500; margin-left: 1vh">{{subItem.subItemName}}</span>
+                      <input style="width: 18vh" *ngIf="subItem.a" type="text" [(ngModel)]=subItem.subItemName
+                        name="currentItemName" class="form-control" aria-label="Recipient's username"
+                        aria-describedby="basic-addon2"
+                        (keypress)="editSubItem($event.keyCode === 13, subItem, item.itemId, subItem.subItemDone, List)">
+                    </div>
+                    <div>
+                      <a style="color: gray;  cursor: pointer;" (click)="subItem.a= !subItem.a" data-toggle="tooltip"
+                        data-placement="bottom" title="Click to Edit Sub Task ">Edit Sub Task</a>
+                      <a style="color: red; cursor: pointer; margin-left: 3vh"
+                        (click)="deleteSubItem(subItem, item.itemId)" data-toggle="tooltip" data-placement="bottom"
+                        title="Click to Delete Sub Task ">Delete Sub Task</a>
+                    </div>
+                  </div>
+                  <hr>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </ng-sidebar-container>
+      </div>
+      <div class="tab-pane tab-style fade" id="friends" role="tabpanel" aria-labelledby="friends-tab">
+        <ng-sidebar-container style="height: 73vh;">
+
+          <!-- A sidebar -->
+          <ng-sidebar mode="push" [showBackdrop]="true" [closeOnClickOutside]="true" [(opened)]="_friends"
+            style="background-color: black">
+            <div style="padding: 1vh">
+              <div class="input-group mb-3">
+                <input type="text" [(ngModel)]="listName" name="listName" class="form-control" placeholder="List Name"
+                  aria-label="Recipient's username" aria-describedby="basic-addon2">
+                <div class="input-group-append">
+                  <button class="btn btn-success" type="button" (click)="createList(false)">Add</button>
+                </div>
+                <div style="margin-left: 2vh">
+                  <button type="button" class="btn btn-danger" (click)="_friendsToggleSidebar()">Remove</button>
+                </div>
+              </div>
+
+              <div *ngFor="let list of friendsListArray">
+                <ul class="list-group">
+                  <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <a (click)="chooseList(list.listId)" *ngIf="!list.id"
+                      style="font-size: 1.2em; color: blue; cursor: pointer;">{{list.listName}}</a>
+                    <input style="width: 18vh" *ngIf="list.id" type="text" [(ngModel)]="list.listName"
+                      name="currentListName" class="form-control" aria-label="Recipient's username"
+                      aria-describedby="basic-addon2" (keypress)="editListName($event, list.listName, list)">
+                    <div>
+                      <a style="margin-right: 1vh; color: gray;  cursor: pointer;" (click)="list.id = !list.id">Edit</a>
+                      <a style="margin-left: 1vh; color: red;  cursor: pointer;" (click)="deleteList(list)">Remove</a>
+                    </div>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </ng-sidebar>
+
+          <!-- Page content -->
+          <div ng-sidebar-content style="margin-left: 1vh; margin-right: 1vh;">
+            <button type="button" class="btn btn-outline-primary btn-lg btn-block"
+              (click)="_friendsToggleSidebar()">Click To Create or View List</button>
+            <div *ngIf="toggle">
+              <div *ngFor="let List of currentList" class="d-flex card p-2 my-2 border border-danger rounded allSides">
+                <div class="d-flex align-items-center my-2">
+                  <div class="lh-100">
+                    <h5 class="mb-0  lh-100">{{List.listName}}</h5>
+                    <h6>Created on - {{List.createdOn | date}}</h6>
+                  </div>
+                  <hr>
+                  <a style="color: green; cursor: pointer;" (click)="inputToggle= !inputToggle" data-toggle="tooltip"
+                    data-placement="bottom" title="Click to Add Task in the list">Add Task in List</a>
+                  <a style="margin-left: 5vh; color: red; cursor: pointer;" (click)="undoFunction(List.listId)"
+                    data-toggle="tooltip" data-placement="bottom" title="Click to Undo">Undo</a>
+                </div>
+                <div *ngIf="inputToggle" class="input-group mb-3">
+                  <input type="text" [(ngModel)]="itemName" name="itemName" class="form-control" placeholder="Task Name"
+                    aria-label="Recipient's username" aria-describedby="basic-addon2">
+                  <div class="input-group-append">
+                    <button class="btn btn-success" type="button" (click)="addItem(List)">Add</button>
+                  </div>
+                </div>
+                <hr>
+                <div *ngFor="let item of itemArray">
+                  <div class="col d-flex justify-content-between">
+                    <div class="row align-items-center">
+                      <div class="form-check">
+                        <input [(ngModel)]="item.done" class="form-check-input position-static" type="checkbox"
+                          id="blankCheckbox" value="option1" aria-label="..."
+                          (click)="editItem($event.target.click, item, !item.done, List)">
+                      </div>
+                      <span *ngIf="!item.a" [ngClass]="item.done  === true ? 'strike' : 'null'"
+                        style="font-size: 1.2em; font-style: 500; margin-left: 1vh">{{item.itemName}}</span>
+                      <input style="width: 18vh" *ngIf="item.a" type="text" [(ngModel)]=item.itemName
+                        name="currentItemName" class="form-control" aria-label="Recipient's username"
+                        aria-describedby="basic-addon2"
+                        (keypress)="editItem($event.keyCode === 13, item, item.done, List)">
+                    </div>
+                    <div>
+                      <a style="color: gray; cursor: pointer;" (click)="item.a= !item.a" data-toggle="tooltip"
+                        data-placement="bottom" title="Click to Edit Sub Task">
+                        Edit</a>
+                      <a style="color: green;  cursor: pointer; margin-left: 3vh;" (click)="item.id= !item.id"
+                        data-toggle="tooltip" data-placement="bottom" title="Click to Add Sub Task">
+                        Add Sub Task</a>
+                      <a style="color: red; cursor: pointer; margin-left: 3vh;" (click)="deleteItem(item, List)"
+                        data-toggle="tooltip" data-placement="bottom" title="Click to Remove Sub Task">
+                        Remove</a>
+                    </div>
+                  </div>
+                  <div *ngIf=item.id class="input-group mb-3">
+                    <input type="text" [(ngModel)]="subItemName" name="subItemName" class="form-control"
+                      placeholder="Sub Task Name" aria-label="Recipient's username" aria-describedby="basic-addon2">
+                    <div class="input-group-append">
+                      <button class="btn btn-success" type="button"
+                        (click)="addSubItem(item, item.itemId, List)">Add</button>
+                    </div>
+                  </div>
+                  <div *ngFor="let subItem of item.subItems" class="col d-flex justify-content-between"
+                    style="margin-left: 5vh; width: 80%;">
+                    <div class="row align-items-center">
+                      <div class="form-check">
+                        <input [(ngModel)]="subItem.subItemDone" subItem.subItemDone=item.done
+                          class="form-check-input position-static" type="checkbox" id="blankCheckbox" value="option1"
+                          aria-label="..."
+                          (click)="editSubItem($event.target.click, subItem, item.itemId, !subItem.subItemDone, List)">
+                      </div>
+                      <span *ngIf="!subItem.a" [ngClass]="subItem.subItemDone === true ? 'strike' : 'null'"
+                        style="font-size: 1.2em; font-style: 500; margin-left: 1vh">{{subItem.subItemName}}</span>
+                      <input style="width: 18vh" *ngIf="subItem.a" type="text" [(ngModel)]=subItem.subItemName
+                        name="currentItemName" class="form-control" aria-label="Recipient's username"
+                        aria-describedby="basic-addon2"
+                        (keypress)="editSubItem($event.keyCode === 13, subItem, item.itemId, subItem.subItemDone, List)">
+                    </div>
+                    <div>
+                      <a style="color: gray; cursor: pointer;" (click)="subItem.a= !subItem.a" data-toggle="tooltip"
+                        data-placement="bottom" title="Click to Edit Sub Task in the list">
+                        Edit Sub Task</a>
+                      <a style="color: red; cursor: pointer; margin-left: 3vh"
+                        (click)="deleteSubItem(subItem, item.itemId, List)" data-toggle="tooltip"
+                        data-placement="bottom" title="Click to Delete Sub Task from the list">
+                        Delete Sub Task</a>
+                    </div>
+                  </div>
+                  <hr>
+                </div>
+              </div>
+            </div>
+          </div>
+        </ng-sidebar-container>
+      </div>
+    </div>
+  </div>
+</div>

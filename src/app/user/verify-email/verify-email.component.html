@@ -1,0 +1,31 @@
+<div class="container-fluid bg-image background">
+    <div class="row">
+        <div style="margin-top: 5vh;" class="col-md-6 mx-auto col-sm-8">
+            <div class="card border-info cardBorder">
+                <div class="card-header bg-secondary">
+                    <h2 class="card-title" style="color:white; text-align: center">Email Verification Status!</h2>
+                </div>
+
+                <div style="padding-top:30px" class="card-body text-center ">
+                    <div class="text-center">
+                        <div>
+                            <h2>Welcome to Ease Your Day!!</h2>
+                        </div>
+                        <div>
+                            <h4 style="color:red">{{message}}</h4>
+                        </div>
+                    </div>
+
+                    <br>
+                </div>
+                <div class="card-footer text-center">
+                    <div class="col-md-12 control">
+                        <button class="btn btn-outline-success" [routerLink]="['/login']">Login </button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+</div>

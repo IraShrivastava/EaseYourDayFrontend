@@ -1,0 +1,133 @@
+<div class="container-fluid bg-image background">
+  <div class="row">
+    <div id="signupbox" style="margin-top:5vh;" class="mainbox col-sm-12 col-md-8 col-lg-6 mx-auto">
+      <div class="card border-info cardBorder">
+        <div class="card-body">
+
+          <div class="text-center">
+            <div>
+              <h3>Welcome!!</h3>
+            </div>
+            <div>
+              <h5>Organize you day to day activity with Ease Your Day & make your life easier<br>We will like to have you Onboard!</h5>
+            </div>
+          </div>
+          <br>
+          <form id="signupform" class="form-horizontal" role="form" #signupForm="ngForm">
+
+            <div class="row">
+
+              <div class="col-md-6">
+                <div class="form-group">
+                  <div class="form-group form-field-container">
+                    <label style="color: gray; float: left;">First Name<span
+                        style="color: red; font-size: 22px;">*</span></label>
+                    <input type="text" #first="ngModel" [(ngModel)]="firstName" name="firstName" id="inputFirstName"
+                      class="form-control" placeholder=" first name" required autofocus>
+                    <div [hidden]="first.valid || first.pristine" style="color: red;">Please enter the value</div>
+                  </div>
+
+                </div>
+              </div>
+
+              <div class="col-md-6">
+                <div class="form-group">
+                  <div class="form-group form-field-container">
+                    <label style="color: gray; float: left;">Last Name<span
+                        style="color: red; font-size: 22px;">*</span></label>
+                    <input type="text" #last="ngModel" [(ngModel)]="lastName" name="lastName" id="inputLastName"
+                      class="form-control" placeholder="last name" required autofocus>
+                    <div [hidden]="last.valid || last.pristine" style="color: red;">Please enter the value</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-12">
+                <div class="form-group">
+                  <div class="form-group form-field-container">
+                    <label for="exampleInputEmail1" style="color: gray; float: left;">Email address<span
+                        style="color: red; font-size: 22px;">*</span></label>
+                    <input type="email" [(ngModel)]="email" pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,3}$"
+                      #emailref="ngModel" name="email" id="inputEmail" class="form-control" placeholder=" Email address"
+                      required autofocus>
+                    <div [hidden]="emailref.valid || emailref.pristine" style="color: red;">Please enter the Correct
+                      Email Address</div>
+                  </div>
+
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-12">
+                <div class="form-group">
+                  <div class="form-group form-field-container">
+                    <label for="inputPassword" style="color: gray; float: left;">Password<span style="color: red; font-size: 22px;">*</span>
+                      (Min 8 characters)</label>
+                    <input type="password" minlength="8" #passref="ngModel" [(ngModel)]="password" name="password"
+                      id="inputPassword" class="form-control" placeholder="Password" required>
+                    <div [hidden]="!passref.errors?.minlength" style="color: red;">Password must have eight characters
+                    </div>
+                    <div [hidden]="!passref.errors?.required || passref.pristine" style="color: red;">Please Enter the
+                      value</div>
+
+                  </div>
+
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-sm-12 col-md-6">
+                <div class="form-group form-field-container">
+
+                  <label style="color: gray; float: left;"> Country<span style="color: red; font-size: 22px;">*</span></label>
+                  <select [(ngModel)]="countryCode" name="countryCode" (change)="getCode()" class="form-control"
+                    id="code" required>
+                    <option [ngValue]="undefined" disabled selected> Select the Country </option>
+                    <option *ngFor="let country of countries" [value]="country.code">{{country.name}}</option>
+                  </select>
+
+                </div>
+              </div>
+
+              <div class="col-sm-12 col-md-6">
+
+                <label for="validationCustomUsername" style="color: gray; float: left;"> Mobile Number <span style="color: red; font-size: 22px;">*</span></label>
+                <div class="input-group">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text" id="inputGroupPrepend">+{{singleCountryCode}}</span>
+                  </div>
+                  <input type="text" [(ngModel)]="mobileNumber" name="mobileNumber" class="form-control"
+                    id="validationCustomUsername" placeholder="Mobile Number" aria-describedby="inputGroupPrepend"
+                    required>
+                </div>
+
+              </div>
+
+            </div>
+
+            <div class="form-group text-center">
+              <div class="col-md-12">
+                <button id="btn-signup" type="button" class="btn btn-primary" (click)="signupFunction()"
+                  [disabled]="!signupForm.form.valid">
+                  Register</button>
+
+                <br>
+                <br>
+                
+
+              </div>
+            </div>
+
+          </form>
+        </div>
+      </div>
+
+      <br>
+    </div>
+
+  </div>
+</div>

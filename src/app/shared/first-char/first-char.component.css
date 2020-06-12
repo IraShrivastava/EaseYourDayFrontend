@@ -1,0 +1,12 @@
+.crop {
+    border-radius: 100%;
+    line-height: .5em;
+    padding: .7em;
+    text-align: center;
+    margin: 0em;
+    width: 2em;
+    height: 2em;
+    float: left;
+    text-transform: uppercase;
+    font-size: 1.5em
+  }
