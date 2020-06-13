@@ -8,8 +8,8 @@ import { HttpXsrfCookieExtractor } from '@angular/common/esm2015/http/src/xsrf';
 })
 export class AppService {
 
-  //public baseUrl = 'http://localhost:3000/api/v1/users'
-  public baseUrl = 'http://apitodo.codervisions.in/api/v1/users'
+  public baseUrl = 'http://localhost:3000/api/v1/users'
+  //public baseUrl = 'http://apitodo.codervisions.in/api/v1/users'
   constructor(private cookieService: CookieService, private _http: HttpClient) { }
 
   public getUserInformationstorage=()=>{
