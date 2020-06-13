@@ -71,8 +71,6 @@ export class DashboardComponent implements OnInit {
       this.getUpdatedList()
       this.getAllItem(this.selectedListId)
       this.getAllHistory(this.selectedListId)
-
-
     });
     this.verifyUserConfirmation()
     this.getUpdatedList()
@@ -130,14 +128,11 @@ export class DashboardComponent implements OnInit {
   }
 
   public getUpdatedList() {
-
     this.appService.getAllListFunction().subscribe(
       (response) => {
-
         this.allList = response.data
         let lists = []
         let freindsList = []
-
         if (response.data !== null) {
           response.data.forEach(list => {
             if (list.creatorId === this.cookieService.get('userId') && list.privacy === true) {
@@ -151,10 +146,10 @@ export class DashboardComponent implements OnInit {
                 freindsList.push(list)
               }
             })
-          });
-          this.listArray = lists
-          this.friendsListArray = freindsList
+          });  
         }
+        this.listArray = lists
+        this.friendsListArray = freindsList
         if (this.currentList.length !== 0) {
           this.friendsListArray.forEach((list) => {
             if (this.currentList[0].listId === list.listId) {
@@ -163,10 +158,9 @@ export class DashboardComponent implements OnInit {
             }
           })
         }
+        //console.log(this.currentList)
       }
     )
-
-
   }
 
   public createList(privacy) {
@@ -221,8 +215,7 @@ export class DashboardComponent implements OnInit {
   }
 
   public deleteList(gotList) {
-
-    if (gotList.privacy === false && (this.cookieService.get('userId') !== gotList.creatorId)) {
+  if (gotList.privacy === false && (this.cookieService.get('userId') !== gotList.creatorId)) {
       this.appService.getAllFriend().subscribe((response) => {
         let friendsidlist;
         let check;
@@ -290,8 +283,7 @@ export class DashboardComponent implements OnInit {
               if (list.listId === gotList.listId) {
                 object.splice(index, 1)
               }
-            })
-            
+            })         
           } else {
             this.toastr.info(response.message)
           }
@@ -316,6 +308,7 @@ export class DashboardComponent implements OnInit {
         this.notifyUpdatesToUser(notifcationData);
       }
       this.toggle = false
+      //console.log(this.currentList)
     }
   }
 
