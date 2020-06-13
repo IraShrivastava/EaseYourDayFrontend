@@ -10,8 +10,8 @@ import * as io from 'socket.io-client';
 })
 export class SocketService {
 
-  //public baseUrl = "http://localhost:3000";
-  public baseUrl = "http://apitodo.codervisions.in";
+  public baseUrl = "http://localhost:3000";
+  //public baseUrl = "http://apitodo.codervisions.in";
   public socket;
 
   constructor(private http: HttpClient) { 

@@ -17,7 +17,7 @@ export class DashboardComponent implements OnInit {
   public userName: String
   public firstChar: String
   public _opened: boolean = false;
-  public _friends: boolean = false
+  public _friends: boolean = false;
   public listName: String
   public listArray = []
   public friendsListArray = []
@@ -28,6 +28,7 @@ export class DashboardComponent implements OnInit {
   public allList
   public currentList = []
   public toggle = false
+  public friendtoggle = false
   public inputToggle = false
   public itemName: String
   public itemArray = []
@@ -70,6 +71,8 @@ export class DashboardComponent implements OnInit {
       this.getUpdatedList()
       this.getAllItem(this.selectedListId)
       this.getAllHistory(this.selectedListId)
+
+
     });
     this.verifyUserConfirmation()
     this.getUpdatedList()
@@ -149,15 +152,20 @@ export class DashboardComponent implements OnInit {
               }
             })
           });
-
           this.listArray = lists
           this.friendsListArray = freindsList
-
-
         }
-
+        if (this.currentList.length !== 0) {
+          this.friendsListArray.forEach((list) => {
+            if (this.currentList[0].listId === list.listId) {
+              if (this.currentList[0].listName !== list.listName)
+                this.currentList[0].listName = list.listName
+            }
+          })
+        }
       }
     )
+
 
   }
 
@@ -182,7 +190,7 @@ export class DashboardComponent implements OnInit {
             this.getUpdatedList()
             this.listName = ""
             if (privacy === false) {
-              
+
               let notifcationData = {
                 message: `A ${data.listName} List has been added by ${this.cookieService.get('UserName')} in Friends List.`,
                 userId: this.friendsId
@@ -224,9 +232,9 @@ export class DashboardComponent implements OnInit {
         var test1 = friendsidlist.filter(function (frnd) {
           check = friendsidlist.find(id => id.friendId === gotList.creatorId)
         })
-        if(check === undefined)
+        if (check === undefined)
           this.router.navigate(['/*'])
-        else{
+        else {
           this.appService.deleteListFunction(gotList.listId).subscribe(
             (response) => {
               if (response.status === 200) {
@@ -246,7 +254,7 @@ export class DashboardComponent implements OnInit {
               }
             }
           )
-      
+
           this.appService.deleteHistoryFunction(gotList.listId).subscribe(
             (response) => {
               if (response.status !== 200) {
@@ -269,49 +277,49 @@ export class DashboardComponent implements OnInit {
       })
     }
     else {
-    this.appService.deleteListFunction(gotList.listId).subscribe(
-      (response) => {
-        if (response.status === 200) {
-          this.toastr.success(response.message)
-          this.listArray.forEach((list, index, object) => {
-            if (list.listId === gotList.listId) {
-              object.splice(index, 1)
-            }
-          })
-          this.friendsListArray.forEach((list, index, object) => {
-            if (list.listId === gotList.listId) {
-              object.splice(index, 1)
-            }
-          })
-        } else {
-          this.toastr.info(response.message)
+      this.appService.deleteListFunction(gotList.listId).subscribe(
+        (response) => {
+          if (response.status === 200) {
+            this.toastr.success(response.message)
+            this.listArray.forEach((list, index, object) => {
+              if (list.listId === gotList.listId) {
+                object.splice(index, 1)
+              }
+            })
+            this.friendsListArray.forEach((list, index, object) => {
+              if (list.listId === gotList.listId) {
+                object.splice(index, 1)
+              }
+            })
+          } else {
+            this.toastr.info(response.message)
+          }
         }
-      }
-    )
+      )
 
-    this.appService.deleteHistoryFunction(gotList.listId).subscribe(
-      (response) => {
-        if (response.status !== 200) {
-          this.toastr.warning(response.message)
+      this.appService.deleteHistoryFunction(gotList.listId).subscribe(
+        (response) => {
+          if (response.status !== 200) {
+            this.toastr.warning(response.message)
+          }
+        },
+        (error) => {
+          this.router.navigate(['/servererror'])
         }
-      },
-      (error) => {
-        this.router.navigate(['/servererror'])
+      )
+      if (gotList.privacy === false) {
+        let notifcationData = {
+          message: `A ${gotList.listName} List has been deleted by ${this.cookieService.get('UserName')} from Friends List.`,
+          userId: this.friendsId
+        }
+        this.notifyUpdatesToUser(notifcationData);
       }
-    )
-    if (gotList.privacy === false) {
-      let notifcationData = {
-        message: `A ${gotList.listName} List has been deleted by ${this.cookieService.get('UserName')} from Friends List.`,
-        userId: this.friendsId
-      }
-      this.notifyUpdatesToUser(notifcationData);
+      this.toggle = false
     }
-    this.toggle = false
-  }
   }
 
   public editListName(event, editedListName, gotList) {
-    if(gotList.privacy === false && (this.cookieService.get('userId') !== gotList.creatorId)){
+    if (gotList.privacy === false && (this.cookieService.get('userId') !== gotList.creatorId)) {
       this.appService.getAllFriend().subscribe((response) => {
         let friendsidlist;
         let check;
@@ -321,9 +329,9 @@ export class DashboardComponent implements OnInit {
         var test2 = friendsidlist.filter(function (frnd) {
           check = friendsidlist.find(id => id.friendId === gotList.creatorId)
         })
-        if(check === undefined)
+        if (check === undefined)
           this.router.navigate(['/*'])
-        else{
+        else {
           if (event.keyCode === 13) {
             if (!editedListName) {
               this.toastr.info('Please Enter List Name')
@@ -334,14 +342,18 @@ export class DashboardComponent implements OnInit {
                 modifierName: this.cookieService.get('UserName'),
                 modifierId: this.cookieService.get('userId')
               }
-      
               this.appService.editListFunction(data).subscribe(
                 (response) => {
                   this.toastr.success(response.message)
                   this.getUpdatedList()
-      
+
                 }
               )
+              if (this.currentList.length !== 0) {
+                if (this.currentList[0].listId === gotList.listId) {
+                  this.currentList[0].listName = editedListName;
+                }
+              }
               if (gotList.privacy === false) {
                 let notifcationData = {
                   message: `A ${gotList.listName} List has been Changed by ${this.cookieService.get('UserName')} to ${editedListName} in Friends List.`,
@@ -354,35 +366,38 @@ export class DashboardComponent implements OnInit {
         }
       })
     }
-    else{
-    if (event.keyCode === 13) {
-      if (!editedListName) {
-        this.toastr.info('Please Enter List Name')
-      } else {
-        let data = {
-          listId: gotList.listId,
-          listName: editedListName,
-          modifierName: this.cookieService.get('UserName'),
-          modifierId: this.cookieService.get('userId')
-        }
-
-        this.appService.editListFunction(data).subscribe(
-          (response) => {
-            this.toastr.success(response.message)
-            this.getUpdatedList()
-
+    else {
+      if (event.keyCode === 13) {
+        if (!editedListName) {
+          this.toastr.info('Please Enter List Name')
+        } else {
+          let data = {
+            listId: gotList.listId,
+            listName: editedListName,
+            modifierName: this.cookieService.get('UserName'),
+            modifierId: this.cookieService.get('userId')
           }
-        )
-        if (gotList.privacy === false) {
-          let notifcationData = {
-            message: `A ${gotList.listName} List has been Changed by ${this.cookieService.get('UserName')} to ${editedListName} in Friends List.`,
-            userId: this.friendsId
+          this.appService.editListFunction(data).subscribe(
+            (response) => {
+              this.toastr.success(response.message)
+              this.getUpdatedList()
+            }
+          )
+          if (this.currentList.length !== 0) {
+            if (this.currentList[0].listId === gotList.listId) {
+              this.currentList[0].listName = editedListName;
+            }
           }
-          this.notifyUpdatesToUser(notifcationData);
+          if (gotList.privacy === false) {
+            let notifcationData = {
+              message: `A ${gotList.listName} List has been Changed by ${this.cookieService.get('UserName')} to ${editedListName} in Friends List.`,
+              userId: this.friendsId
+            }
+            this.notifyUpdatesToUser(notifcationData);
+          }
         }
       }
     }
-  }
   }
 
   public getAllHistory(listId) {
@@ -424,234 +439,251 @@ export class DashboardComponent implements OnInit {
       }
     }
     this.getAllItem(listId)
-    this._toggleSidebar()
-    this._friendsToggleSidebar()
-    this.toggle = true
+    if(this.currentList[0].privacy === true)
+    {
+      this._toggleSidebar()
+      this.toggle = true
+    }
+    if(this.currentList[0].privacy === false)
+    {
+      this._friendsToggleSidebar()
+      this.friendtoggle = true
+    }
+    
     this.getAllHistory(listId)
     this.selectedListId = listId
 
   }
 
   public addItem(list) {
+    if (!this.itemName) {
+      this.toastr.info('Please Enter item Name')
+    } else {
+      if (list.privacy === false && (this.cookieService.get('userId') !== list.creatorId)) {
 
-    if (list.privacy === false && (this.cookieService.get('userId') !== list.creatorId)) {
-      this.appService.getAllFriend().subscribe((response) => {
-        let friendsidlist;
-        let check;
-        for (let i = 0; i < response.data.length; i++) {
-          friendsidlist = response.data[i].friends
-        }
-        var test = friendsidlist.filter(function (frnd) {
-          check = friendsidlist.find(id => id.friendId === list.creatorId)
-        })
-        if (check === undefined)
-          this.router.navigate(['/*'])
-        else {
-          let option = {
-            key: "Item Added",
-            listId: list.listId
+        this.appService.getAllFriend().subscribe((response) => {
+          let friendsidlist;
+          let check;
+          for (let i = 0; i < response.data.length; i++) {
+            friendsidlist = response.data[i].friends
           }
-          this.appService.createHistoryFunction(option).subscribe(
-            (response) => {
-              if (response.status !== 200) {
-                this.toastr.warning(response.message)
-              }
-            },
-            (error) => {
-              this.router.navigate(['/servererror'])
-            }
-          )
-          let data = {
-            listId: list.listId,
-            itemName: this.itemName,
-            itemId: this.uid.randomUUID(8)
-          }
-          //
-          this.inputToggle = false
-          //
-          this.appService.addItems(data).subscribe(
-            (response) => {
-              if (response.status !== 200) {
-                this.router.navigate(['/*'])
-              }
-              else if (response.status === 200) {
-                this.toastr.success(response.message)
-                for (let item of response.data) {
-                  this.itemArray.push(item)
-                }
-                this.itemName = ''
-                this.getAllHistory(list.listId)
-              } else {
-                this.router.navigate(['/*'])
-              }
-            }
-          )
-          if (list.privacy === false) {
-            let notifcationData = {
-              message: `A ${data.itemName} Item has been added by ${this.cookieService.get('UserName')} in ${list.listName} List.`,
-              userId: this.friendsId,
+          var test = friendsidlist.filter(function (frnd) {
+            check = friendsidlist.find(id => id.friendId === list.creatorId)
+          })
+          if (check === undefined)
+            this.router.navigate(['/*'])
+          else {
+            let option = {
+              key: "Item Added",
               listId: list.listId
             }
-            this.notifyUpdatesToUser(notifcationData);
-          }
-        }
-      })
-    }
-    else {
-      //
-      let option = {
-        key: "Item Added",
-        listId: list.listId
-      }
-      this.appService.createHistoryFunction(option).subscribe(
-        (response) => {
-          if (response.status !== 200) {
-            this.toastr.warning(response.message)
-          }
-        },
-        (error) => {
-          this.router.navigate(['/servererror'])
-        }
-      )
-      let data = {
-        listId: list.listId,
-        itemName: this.itemName,
-        itemId: this.uid.randomUUID(8)
-      }
-      //
-      this.inputToggle = false
-      //
-      this.appService.addItems(data).subscribe(
-        (response) => {
-          if (response.status !== 200) {
-            this.router.navigate(['/*'])
-          }
-          else if (response.status === 200) {
-            this.toastr.success(response.message)
-            for (let item of response.data) {
-              this.itemArray.push(item)
+            this.appService.createHistoryFunction(option).subscribe(
+              (response) => {
+                if (response.status !== 200) {
+                  this.toastr.warning(response.message)
+                }
+              },
+              (error) => {
+                this.router.navigate(['/servererror'])
+              }
+            )
+            let data = {
+              listId: list.listId,
+              itemName: this.itemName,
+              itemId: this.uid.randomUUID(8)
             }
-            this.itemName = ''
-            this.getAllHistory(list.listId)
-          } else {
-            this.router.navigate(['/*'])
+            //
+            this.inputToggle = false
+            //
+            this.appService.addItems(data).subscribe(
+              (response) => {
+                if (response.status !== 200) {
+                  this.router.navigate(['/*'])
+                }
+                else if (response.status === 200) {
+                  this.toastr.success(response.message)
+                  for (let item of response.data) {
+                    this.itemArray.push(item)
+                  }
+                  this.itemName = ''
+                  this.getAllHistory(list.listId)
+                } else {
+                  this.router.navigate(['/*'])
+                }
+              }
+            )
+            if (list.privacy === false) {
+              let notifcationData = {
+                message: `A ${data.itemName} Item has been added by ${this.cookieService.get('UserName')} in ${list.listName} List.`,
+                userId: this.friendsId,
+                listId: list.listId
+              }
+              this.notifyUpdatesToUser(notifcationData);
+            }
           }
-        }
-      )
-      if (list.privacy === false) {
-        let notifcationData = {
-          message: `A ${data.itemName} Item has been added by ${this.cookieService.get('UserName')} in ${list.listName} List.`,
-          userId: this.friendsId,
+        })
+      }
+      else {
+        //
+        let option = {
+          key: "Item Added",
           listId: list.listId
         }
-        this.notifyUpdatesToUser(notifcationData);
+        this.appService.createHistoryFunction(option).subscribe(
+          (response) => {
+            if (response.status !== 200) {
+              this.toastr.warning(response.message)
+            }
+          },
+          (error) => {
+            this.router.navigate(['/servererror'])
+          }
+        )
+        let data = {
+          listId: list.listId,
+          itemName: this.itemName,
+          itemId: this.uid.randomUUID(8)
+        }
+        //
+        this.inputToggle = false
+        //
+        this.appService.addItems(data).subscribe(
+          (response) => {
+            if (response.status !== 200) {
+              this.router.navigate(['/*'])
+            }
+            else if (response.status === 200) {
+              this.toastr.success(response.message)
+              for (let item of response.data) {
+                this.itemArray.push(item)
+              }
+              this.itemName = ''
+              this.getAllHistory(list.listId)
+            } else {
+              this.router.navigate(['/*'])
+            }
+          }
+        )
+        if (list.privacy === false) {
+          let notifcationData = {
+            message: `A ${data.itemName} Item has been added by ${this.cookieService.get('UserName')} in ${list.listName} List.`,
+            userId: this.friendsId,
+            listId: list.listId
+          }
+          this.notifyUpdatesToUser(notifcationData);
+        }
       }
     }
   }
 
   public addSubItem(item, itemId, gotList?) {
-    if(gotList.privacy === false && (this.cookieService.get('userId') !== gotList.creatorId)){
-      this.appService.getAllFriend().subscribe((response) => {
-        let friendsidlist;
-        let check;
-        for (let i = 0; i < response.data.length; i++) {
-          friendsidlist = response.data[i].friends
-        }
-        var test3 = friendsidlist.filter(function (frnd) {
-          check = friendsidlist.find(id => id.friendId === gotList.creatorId)
-        })
-        if(check === undefined)
-          this.router.navigate(['/*'])
-        else{
-          let option = {
-            key: "Sub Item Added",
-            listId: gotList.listId
+    if (!this.subItemName) {
+      this.toastr.info('Please Enter Sub Item Name')
+    }
+    else {
+      if (gotList.privacy === false && (this.cookieService.get('userId') !== gotList.creatorId)) {
+        this.appService.getAllFriend().subscribe((response) => {
+          let friendsidlist;
+          let check;
+          for (let i = 0; i < response.data.length; i++) {
+            friendsidlist = response.data[i].friends
           }
-          this.appService.createHistoryFunction(option).subscribe(
-            (response) => {
-              if (response.status !== 200) {
-                this.toastr.warning(response.message)
-              }
-            },
-            (error) => {
-              this.router.navigate(['/servererror'])
+          var test3 = friendsidlist.filter(function (frnd) {
+            check = friendsidlist.find(id => id.friendId === gotList.creatorId)
+          })
+          if (check === undefined)
+            this.router.navigate(['/*'])
+          else {
+            let option = {
+              key: "Sub Item Added",
+              listId: gotList.listId
             }
-          )
-          let data = {
-            itemId: itemId,
-            subItemName: this.subItemName,
-            subItemId: this.uid.randomUUID(8),
-            subItemDone: false,
-          }
-          this.appService.addSubItems(data).subscribe(
-            (response) => {
-              this.toastr.success(response.message)
-              for (let item of this.itemArray) {
-                if (itemId === item.itemId) {
-                  item.subItems.push(data)
+            this.appService.createHistoryFunction(option).subscribe(
+              (response) => {
+                if (response.status !== 200) {
+                  this.toastr.warning(response.message)
                 }
+              },
+              (error) => {
+                this.router.navigate(['/servererror'])
               }
-              this.subItemName = ''
-              this.getAllHistory(gotList.listId)
+            )
+            let data = {
+              itemId: itemId,
+              subItemName: this.subItemName,
+              subItemId: this.uid.randomUUID(8),
+              subItemDone: false,
             }
-          )
-          if (gotList.privacy === false) {
-            let notifcationData = {
-              message: `A ${data.subItemName} Sub Item has been added by ${this.cookieService.get('UserName')} in ${gotList.listName} List.`,
-              userId: this.friendsId
+            this.appService.addSubItems(data).subscribe(
+              (response) => {
+                this.toastr.success(response.message)
+                for (let item of this.itemArray) {
+                  if (itemId === item.itemId) {
+                    item.subItems.push(data)
+                  }
+                }
+                this.subItemName = ''
+                this.getAllHistory(gotList.listId)
+              }
+            )
+            if (gotList.privacy === false) {
+              let notifcationData = {
+                message: `A ${data.subItemName} Sub Item has been added by ${this.cookieService.get('UserName')} in ${gotList.listName} List.`,
+                userId: this.friendsId
+              }
+              this.notifyUpdatesToUser(notifcationData);
             }
-            this.notifyUpdatesToUser(notifcationData);
+            item.id = false;
           }
-          item.id = false;
-        }
-      })
-    }
-    else{
-    let option = {
-      key: "Sub Item Added",
-      listId: gotList.listId
-    }
-    this.appService.createHistoryFunction(option).subscribe(
-      (response) => {
-        if (response.status !== 200) {
-          this.toastr.warning(response.message)
-        }
-      },
-      (error) => {
-        this.router.navigate(['/servererror'])
+        })
       }
-    )
-    let data = {
-      itemId: itemId,
-      subItemName: this.subItemName,
-      subItemId: this.uid.randomUUID(8),
-      subItemDone: false,
-    }
-    this.appService.addSubItems(data).subscribe(
-      (response) => {
-        this.toastr.success(response.message)
-        for (let item of this.itemArray) {
-          if (itemId === item.itemId) {
-            item.subItems.push(data)
+      else {
+        let option = {
+          key: "Sub Item Added",
+          listId: gotList.listId
+        }
+        this.appService.createHistoryFunction(option).subscribe(
+          (response) => {
+            if (response.status !== 200) {
+              this.toastr.warning(response.message)
+            }
+          },
+          (error) => {
+            this.router.navigate(['/servererror'])
           }
+        )
+        let data = {
+          itemId: itemId,
+          subItemName: this.subItemName,
+          subItemId: this.uid.randomUUID(8),
+          subItemDone: false,
         }
-        this.subItemName = ''
-        this.getAllHistory(gotList.listId)
+        this.appService.addSubItems(data).subscribe(
+          (response) => {
+            this.toastr.success(response.message)
+            for (let item of this.itemArray) {
+              if (itemId === item.itemId) {
+                item.subItems.push(data)
+              }
+            }
+            this.subItemName = ''
+            this.getAllHistory(gotList.listId)
+          }
+        )
+        if (gotList.privacy === false) {
+          let notifcationData = {
+            message: `A ${data.subItemName} Sub Item has been added by ${this.cookieService.get('UserName')} in ${gotList.listName} List.`,
+            userId: this.friendsId
+          }
+          this.notifyUpdatesToUser(notifcationData);
+        }
+        item.id = false;
       }
-    )
-    if (gotList.privacy === false) {
-      let notifcationData = {
-        message: `A ${data.subItemName} Sub Item has been added by ${this.cookieService.get('UserName')} in ${gotList.listName} List.`,
-        userId: this.friendsId
-      }
-      this.notifyUpdatesToUser(notifcationData);
     }
-    item.id = false;
-  }
   }
 
   public editItem(event, item, done, gotList) {
-    if(gotList.privacy === false && (this.cookieService.get('userId') !== gotList.creatorId)){
+    if (gotList.privacy === false && (this.cookieService.get('userId') !== gotList.creatorId)) {
       this.appService.getAllFriend().subscribe((response) => {
         let friendsidlist;
         let check;
@@ -661,9 +693,9 @@ export class DashboardComponent implements OnInit {
         var test3 = friendsidlist.filter(function (frnd) {
           check = friendsidlist.find(id => id.friendId === gotList.creatorId)
         })
-        if(check === undefined)
+        if (check === undefined)
           this.router.navigate(['/*'])
-        else{
+        else {
           if (event) {
             let option = {
               key: "Item Edited",
@@ -692,7 +724,7 @@ export class DashboardComponent implements OnInit {
                   this.toastr.success(response.message)
                 }
               )
-      
+
               item.a = false
               this.getAllHistory(item.listId)
             }
@@ -705,54 +737,54 @@ export class DashboardComponent implements OnInit {
             }
           }
         }
-    })
-  }
-    else{
-    if (event) {
-      let option = {
-        key: "Item Edited",
-        listId: item.listId
-      }
-      this.appService.createHistoryFunction(option).subscribe(
-        (response) => {
-          if (response.status !== 200) {
-            this.toastr.warning(response.message)
-          }
-        },
-        (error) => {
-          this.router.navigate(['/servererror'])
+      })
+    }
+    else {
+      if (event) {
+        let option = {
+          key: "Item Edited",
+          listId: item.listId
         }
-      )
-      if (!item.itemName) {
-        this.toastr.info('Please Enter Item Name')
-      } else {
-        let data = {
-          itemId: item.itemId,
-          itemName: item.itemName,
-          done: done
-        }
-        this.appService.editItem(data).subscribe(
+        this.appService.createHistoryFunction(option).subscribe(
           (response) => {
-            this.toastr.success(response.message)
+            if (response.status !== 200) {
+              this.toastr.warning(response.message)
+            }
+          },
+          (error) => {
+            this.router.navigate(['/servererror'])
           }
         )
+        if (!item.itemName) {
+          this.toastr.info('Please Enter Item Name')
+        } else {
+          let data = {
+            itemId: item.itemId,
+            itemName: item.itemName,
+            done: done
+          }
+          this.appService.editItem(data).subscribe(
+            (response) => {
+              this.toastr.success(response.message)
+            }
+          )
 
-        item.a = false
-        this.getAllHistory(item.listId)
-      }
-      if (gotList.privacy === false) {
-        let notifcationData = {
-          message: `A ${item.itemName}  Item has been Changed by ${this.cookieService.get('UserName')} in ${gotList.listName} List.`,
-          userId: this.friendsId
+          item.a = false
+          this.getAllHistory(item.listId)
         }
-        this.notifyUpdatesToUser(notifcationData);
+        if (gotList.privacy === false) {
+          let notifcationData = {
+            message: `A ${item.itemName}  Item has been Changed by ${this.cookieService.get('UserName')} in ${gotList.listName} List.`,
+            userId: this.friendsId
+          }
+          this.notifyUpdatesToUser(notifcationData);
+        }
       }
     }
   }
-  }
 
   public deleteItem(item, gotList?) {
-    if(gotList.privacy === false && (this.cookieService.get('userId') !== gotList.creatorId)){
+    if (gotList.privacy === false && (this.cookieService.get('userId') !== gotList.creatorId)) {
       this.appService.getAllFriend().subscribe((response) => {
         let friendsidlist;
         let check;
@@ -762,9 +794,9 @@ export class DashboardComponent implements OnInit {
         var test3 = friendsidlist.filter(function (frnd) {
           check = friendsidlist.find(id => id.friendId === gotList.creatorId)
         })
-        if(check === undefined)
-         this.router.navigate(['/*'])
-        else{
+        if (check === undefined)
+          this.router.navigate(['/*'])
+        else {
           if (gotList) {
             let option = {
               key: "Item Deleted",
@@ -788,7 +820,7 @@ export class DashboardComponent implements OnInit {
                 this.itemArray.forEach((Item, index, object) => {
                   if (item.itemId === Item.itemId) {
                     object.splice(index, 1)
-      
+
                   }
                 })
               } else {
@@ -809,54 +841,53 @@ export class DashboardComponent implements OnInit {
         }
       })
     }
-    else{
-    if (gotList) {
-      let option = {
-        key: "Item Deleted",
-        listId: gotList.listId
+    else {
+      if (gotList) {
+        let option = {
+          key: "Item Deleted",
+          listId: gotList.listId
+        }
+        this.appService.createHistoryFunction(option).subscribe(
+          (response) => {
+            if (response.status !== 200) {
+              this.toastr.warning(response.message)
+            }
+          },
+          (error) => {
+            this.router.navigate(['/servererror'])
+          }
+        )
       }
-      this.appService.createHistoryFunction(option).subscribe(
+      this.appService.deleteItemFunction(item.itemId).subscribe(
         (response) => {
-          if (response.status !== 200) {
+          if (response.status === 200) {
+            this.toastr.info(response.message)
+            this.itemArray.forEach((Item, index, object) => {
+              if (item.itemId === Item.itemId) {
+                object.splice(index, 1)
+
+              }
+            })
+          } else {
             this.toastr.warning(response.message)
           }
-        },
-        (error) => {
-          this.router.navigate(['/servererror'])
+          this.getAllHistory(this.selectedListId)
         }
       )
-    }
-    this.appService.deleteItemFunction(item.itemId).subscribe(
-      (response) => {
-        if (response.status === 200) {
-          this.toastr.info(response.message)
-          this.itemArray.forEach((Item, index, object) => {
-            if (item.itemId === Item.itemId) {
-              object.splice(index, 1)
-
-            }
-          })
-        } else {
-          this.toastr.warning(response.message)
+      if (gotList) {
+        if (gotList.privacy === false) {
+          let notifcationData = {
+            message: `A ${item.itemName}  Item has been Deleted by ${this.cookieService.get('UserName')} in ${gotList.listName} List.`,
+            userId: this.friendsId
+          }
+          this.notifyUpdatesToUser(notifcationData);
         }
-        this.getAllHistory(this.selectedListId)
-      }
-    )
-    if (gotList) {
-      if (gotList.privacy === false) {
-        let notifcationData = {
-          message: `A ${item.itemName}  Item has been Deleted by ${this.cookieService.get('UserName')} in ${gotList.listName} List.`,
-          userId: this.friendsId
-        }
-        this.notifyUpdatesToUser(notifcationData);
       }
     }
-  }
   }
 
   public editSubItem(event, subItem, itemId, done, gotList?) {
-    console.log("HI edit sub item")
-    if(gotList.privacy === false && (this.cookieService.get('userId') !== gotList.creatorId)){
+    if (gotList.privacy === false && (this.cookieService.get('userId') !== gotList.creatorId)) {
       this.appService.getAllFriend().subscribe((response) => {
         let friendsidlist;
         let check;
@@ -866,9 +897,9 @@ export class DashboardComponent implements OnInit {
         var test3 = friendsidlist.filter(function (frnd) {
           check = friendsidlist.find(id => id.friendId === gotList.creatorId)
         })
-        if(check === undefined)
-         this.router.navigate(['/*'])
-        else{
+        if (check === undefined)
+          this.router.navigate(['/*'])
+        else {
           if (event) {
             let option = {
               key: "Sub Item Edited",
@@ -901,7 +932,7 @@ export class DashboardComponent implements OnInit {
               subItem.a = false
               this.getAllHistory(this.selectedListId)
             }
-      
+
             if (gotList.privacy === false) {
               let notifcationData = {
                 message: `A ${subItem.subItemName} Sub Item has been Changed by ${this.cookieService.get('UserName')} in ${gotList.listName} List.`,
@@ -914,53 +945,53 @@ export class DashboardComponent implements OnInit {
       })
 
     }
-    else{
-    if (event) {
-      let option = {
-        key: "Sub Item Edited",
-        listId: this.selectedListId
-      }
-      this.appService.createHistoryFunction(option).subscribe(
-        (response) => {
-          if (response.status !== 200) {
-            this.toastr.warning(response.message)
-          }
-        },
-        (error) => {
-          this.router.navigate(['/servererror'])
+    else {
+      if (event) {
+        let option = {
+          key: "Sub Item Edited",
+          listId: this.selectedListId
         }
-      )
-      if (!subItem.subItemName) {
-        this.toastr.info('Please Enter Item Name')
-      } else {
-        let data = {
-          subItemId: subItem.subItemId,
-          subItemName: subItem.subItemName,
-          subItemDone: done,
-          itemId: itemId
-        }
-        this.appService.editSubItem(data).subscribe(
+        this.appService.createHistoryFunction(option).subscribe(
           (response) => {
-            this.toastr.success(response.message)
+            if (response.status !== 200) {
+              this.toastr.warning(response.message)
+            }
+          },
+          (error) => {
+            this.router.navigate(['/servererror'])
           }
         )
-        subItem.a = false
-        this.getAllHistory(this.selectedListId)
-      }
-
-      if (gotList.privacy === false) {
-        let notifcationData = {
-          message: `A ${subItem.subItemName} Sub Item has been Changed by ${this.cookieService.get('UserName')} in ${gotList.listName} List.`,
-          userId: this.friendsId
+        if (!subItem.subItemName) {
+          this.toastr.info('Please Enter Item Name')
+        } else {
+          let data = {
+            subItemId: subItem.subItemId,
+            subItemName: subItem.subItemName,
+            subItemDone: done,
+            itemId: itemId
+          }
+          this.appService.editSubItem(data).subscribe(
+            (response) => {
+              this.toastr.success(response.message)
+            }
+          )
+          subItem.a = false
+          this.getAllHistory(this.selectedListId)
         }
-        this.notifyUpdatesToUser(notifcationData);
+
+        if (gotList.privacy === false) {
+          let notifcationData = {
+            message: `A ${subItem.subItemName} Sub Item has been Changed by ${this.cookieService.get('UserName')} in ${gotList.listName} List.`,
+            userId: this.friendsId
+          }
+          this.notifyUpdatesToUser(notifcationData);
+        }
       }
     }
   }
-  }
 
   public deleteSubItem(subItem, itemId, gotList?) {
-    if(gotList.privacy === false && (this.cookieService.get('userId') !== gotList.creatorId)){
+    if (gotList.privacy === false && (this.cookieService.get('userId') !== gotList.creatorId)) {
       this.appService.getAllFriend().subscribe((response) => {
         let friendsidlist;
         let check;
@@ -970,9 +1001,9 @@ export class DashboardComponent implements OnInit {
         var test3 = friendsidlist.filter(function (frnd) {
           check = friendsidlist.find(id => id.friendId === gotList.creatorId)
         })
-        if(check === undefined)
+        if (check === undefined)
           this.router.navigate(['/*'])
-        else{
+        else {
           let option = {
             key: "Sub Item Added",
             listId: this.selectedListId
@@ -1018,219 +1049,229 @@ export class DashboardComponent implements OnInit {
         }
       })
     }
-    else{
-    let option = {
-      key: "Sub Item Added",
-      listId: this.selectedListId
-    }
-    this.appService.createHistoryFunction(option).subscribe(
-      (response) => {
-        if (response.status !== 200) {
-          this.toastr.warning(response.message)
-        }
-      },
-      (error) => {
-        this.router.navigate(['/servererror'])
+    else {
+      let option = {
+        key: "Sub Item Added",
+        listId: this.selectedListId
       }
-    )
-    let data = {
-      itemId: itemId,
-      subItemId: subItem.subItemId
-    }
-    this.appService.deleteSubItemFunction(data).subscribe(
-      (response) => {
-        if (response.status === 200) {
-          this.toastr.info(response.message)
-          this.itemArray.forEach((item) => {
-            item.subItems.forEach((Item, index, object) => {
-              if (Item.subItemId === subItem.subItemId) {
-                object.splice(index, 1)
-              }
+      this.appService.createHistoryFunction(option).subscribe(
+        (response) => {
+          if (response.status !== 200) {
+            this.toastr.warning(response.message)
+          }
+        },
+        (error) => {
+          this.router.navigate(['/servererror'])
+        }
+      )
+      let data = {
+        itemId: itemId,
+        subItemId: subItem.subItemId
+      }
+      this.appService.deleteSubItemFunction(data).subscribe(
+        (response) => {
+          if (response.status === 200) {
+            this.toastr.info(response.message)
+            this.itemArray.forEach((item) => {
+              item.subItems.forEach((Item, index, object) => {
+                if (Item.subItemId === subItem.subItemId) {
+                  object.splice(index, 1)
+                }
+              })
             })
-          })
-        } else {
-          this.toastr.warning(response.message)
+          } else {
+            this.toastr.warning(response.message)
+          }
+          this.getAllHistory(this.selectedListId)
         }
-        this.getAllHistory(this.selectedListId)
+      )
+      if (gotList.privacy === false) {
+        let notifcationData = {
+          message: `A ${subItem.subItemName} Sub Item has been Deleted by ${this.cookieService.get('UserName')} in ${gotList.listName} List.`,
+          userId: this.friendsId
+        }
+        this.notifyUpdatesToUser(notifcationData);
       }
-    )
-    if (gotList.privacy === false) {
-      let notifcationData = {
-        message: `A ${subItem.subItemName} Sub Item has been Deleted by ${this.cookieService.get('UserName')} in ${gotList.listName} List.`,
-        userId: this.friendsId
-      }
-      this.notifyUpdatesToUser(notifcationData);
     }
-  }
   }
 
   public undoFunction(listId) {
-    if(this.currentList[0].privacy === false && (this.cookieService.get('userId') !== this.currentList[0].creatorId)){
+    if (this.currentList[0].privacy === false && (this.cookieService.get('userId') !== this.currentList[0].creatorId)) {
       this.appService.getAllFriend().subscribe((response) => {
         let friendsidlist;
         let check;
         for (let i = 0; i < response.data.length; i++) {
           friendsidlist = response.data[i].friends
         }
-        let cId=this.currentList[0].creatorId
-        console.log("cId")
-        console.log(cId)
+        let cId = this.currentList[0].creatorId
         var test3 = friendsidlist.filter(function (frnd) {
           check = friendsidlist.find(id => id.friendId === cId)
         })
-        if(check === undefined)
+        if (check === undefined)
           this.router.navigate(['/*'])
-        else{
+        else {
           let tempHistory = this.allHistory[0]
-    let props = ['itemId', 'listId', 'itemName', 'createdOn', 'subItems']
-    //
-    if (tempHistory.key === "Item Added") {
-      let result = this.itemArray.filter((oldItem) => {
-        return !tempHistory.itemsArray.some((newItem) => {
-          return oldItem.itemId === newItem.itemId;
-        });
-      }).map((item) => {
-        return props.reduce((newOne, itemId) => {
-          newOne[itemId] = item[itemId];
-          return newOne;
-        }, {});
-      });
-      for (let item of result) {
-        this.deleteItem(item,this.currentList)
-      }
-    }
-
-    if (tempHistory.key === "Item Deleted") {
-      let newResult = tempHistory.itemsArray.filter((oldItem) => {
-        return !this.itemArray.some((newItem) => {
-          return oldItem.itemId === newItem.itemId;
-        });
-      }).map((item) => {
-        return props.reduce((newOne, itemId) => {
-          newOne[itemId] = item[itemId];
-          return newOne;
-        }, {});
-      });
-      for (let item of newResult) {
-        let data = {
-          listId: item['listId'],
-          itemName: item['itemName'],
-          itemId: item['itemId']
-        }
-        this.appService.addItems(data).subscribe(
-          (response) => {
-            this.toastr.success(response.message)
+          let props = ['itemId', 'listId', 'itemName', 'createdOn', 'subItems']
+          //
+          if (tempHistory.key === "Item Added") {
+            let result = this.itemArray.filter((oldItem) => {
+              return !tempHistory.itemsArray.some((newItem) => {
+                return oldItem.itemId === newItem.itemId;
+              });
+            }).map((item) => {
+              return props.reduce((newOne, itemId) => {
+                newOne[itemId] = item[itemId];
+                return newOne;
+              }, {});
+            });
+            for (let item of result) {
+              this.deleteItem(item, this.currentList)
+            }
           }
 
-        )
-        this.getAllHistory(item['listId'])
-      }
-    }
-    this.itemArray = this.allHistory[0].itemsArray
-    for (let items of this.itemArray) {
-      let data = {
-        listId: listId,
-        itemId: items.itemId,
-        itemName: items.itemName,
-        done: items.done,
-        subItems: items.subItems,
-        createdOn: items.createdOn
-      }
-      this.appService.replaceItem(data).subscribe(
-        (response) => {
-          if (response.status !== 200) {
-            this.toastr.warning(response.message)
+          if (tempHistory.key === "Item Deleted") {
+            let newResult = tempHistory.itemsArray.filter((oldItem) => {
+              return !this.itemArray.some((newItem) => {
+                return oldItem.itemId === newItem.itemId;
+              });
+            }).map((item) => {
+              return props.reduce((newOne, itemId) => {
+                newOne[itemId] = item[itemId];
+                return newOne;
+              }, {});
+            });
+            for (let item of newResult) {
+              let data = {
+                listId: item['listId'],
+                itemName: item['itemName'],
+                itemId: item['itemId']
+              }
+              this.appService.addItems(data).subscribe(
+                (response) => {
+                  this.toastr.success(response.message)
+                }
+
+              )
+              this.getAllHistory(item['listId'])
+            }
           }
-        },
-        (error) => {
-          this.router.navigate(['/servererror'])
-        }
-      )
-    }
+          this.itemArray = this.allHistory[0].itemsArray
+          for (let items of this.itemArray) {
+            let data = {
+              listId: listId,
+              itemId: items.itemId,
+              itemName: items.itemName,
+              done: items.done,
+              subItems: items.subItems,
+              createdOn: items.createdOn
+            }
+            this.appService.replaceItem(data).subscribe(
+              (response) => {
+                if (response.status !== 200) {
+                  this.toastr.warning(response.message)
+                }
+              },
+              (error) => {
+                this.router.navigate(['/servererror'])
+              }
+            )
+          }
 
-    this.appService.updateHistoryFunction(listId).subscribe(
-      (response) => {
-        if (response.status !== 200) {
-          this.toastr.warning(response.message)
-        }
-      },
-      (error) => {
-        this.router.navigate(['/servererror'])
-      }
-    )
-    this.getAllHistory(listId)
-    this.getAllItem(listId)
-    for (let list of this.currentList) {
-      if (list.privacy === false) {
+          this.appService.updateHistoryFunction(listId).subscribe(
+            (response) => {
+              if (response.status !== 200) {
+                this.toastr.warning(response.message)
+              }
+            },
+            (error) => {
+              this.router.navigate(['/servererror'])
+            }
+          )
+          this.getAllHistory(listId)
+          this.getAllItem(listId)
+          for (let list of this.currentList) {
+            if (list.privacy === false) {
 
-        let notifcationData = {
-          message: `A Undo has been done by ${this.cookieService.get('UserName')} in ${list.listName} List.`,
-          userId: this.friendsId
-        }
-        this.notifyUpdatesToUser(notifcationData);
+              let notifcationData = {
+                message: `A Undo has been done by ${this.cookieService.get('UserName')} in ${list.listName} List.`,
+                userId: this.friendsId
+              }
+              this.notifyUpdatesToUser(notifcationData);
 
-      }
-    }
+            }
+          }
         }
       })
     }
-    else{
-    let tempHistory = this.allHistory[0]
-    let props = ['itemId', 'listId', 'itemName', 'createdOn', 'subItems']
-    //
-    if (tempHistory.key === "Item Added") {
-      let result = this.itemArray.filter((oldItem) => {
-        return !tempHistory.itemsArray.some((newItem) => {
-          return oldItem.itemId === newItem.itemId;
+    else {
+      let tempHistory = this.allHistory[0]
+      let props = ['itemId', 'listId', 'itemName', 'createdOn', 'subItems']
+      //
+      if (tempHistory.key === "Item Added") {
+        let result = this.itemArray.filter((oldItem) => {
+          return !tempHistory.itemsArray.some((newItem) => {
+            return oldItem.itemId === newItem.itemId;
+          });
+        }).map((item) => {
+          return props.reduce((newOne, itemId) => {
+            newOne[itemId] = item[itemId];
+            return newOne;
+          }, {});
         });
-      }).map((item) => {
-        return props.reduce((newOne, itemId) => {
-          newOne[itemId] = item[itemId];
-          return newOne;
-        }, {});
-      });
-      for (let item of result) {
-        this.deleteItem(item,this.currentList)
-      }
-    }
-
-    if (tempHistory.key === "Item Deleted") {
-      let newResult = tempHistory.itemsArray.filter((oldItem) => {
-        return !this.itemArray.some((newItem) => {
-          return oldItem.itemId === newItem.itemId;
-        });
-      }).map((item) => {
-        return props.reduce((newOne, itemId) => {
-          newOne[itemId] = item[itemId];
-          return newOne;
-        }, {});
-      });
-      for (let item of newResult) {
-        let data = {
-          listId: item['listId'],
-          itemName: item['itemName'],
-          itemId: item['itemId']
+        for (let item of result) {
+          this.deleteItem(item, this.currentList)
         }
-        this.appService.addItems(data).subscribe(
-          (response) => {
-            this.toastr.success(response.message)
-          }
+      }
 
+      if (tempHistory.key === "Item Deleted") {
+        let newResult = tempHistory.itemsArray.filter((oldItem) => {
+          return !this.itemArray.some((newItem) => {
+            return oldItem.itemId === newItem.itemId;
+          });
+        }).map((item) => {
+          return props.reduce((newOne, itemId) => {
+            newOne[itemId] = item[itemId];
+            return newOne;
+          }, {});
+        });
+        for (let item of newResult) {
+          let data = {
+            listId: item['listId'],
+            itemName: item['itemName'],
+            itemId: item['itemId']
+          }
+          this.appService.addItems(data).subscribe(
+            (response) => {
+              this.toastr.success(response.message)
+            }
+
+          )
+          this.getAllHistory(item['listId'])
+        }
+      }
+      this.itemArray = this.allHistory[0].itemsArray
+      for (let items of this.itemArray) {
+        let data = {
+          listId: listId,
+          itemId: items.itemId,
+          itemName: items.itemName,
+          done: items.done,
+          subItems: items.subItems,
+          createdOn: items.createdOn
+        }
+        this.appService.replaceItem(data).subscribe(
+          (response) => {
+            if (response.status !== 200) {
+              this.toastr.warning(response.message)
+            }
+          },
+          (error) => {
+            this.router.navigate(['/servererror'])
+          }
         )
-        this.getAllHistory(item['listId'])
       }
-    }
-    this.itemArray = this.allHistory[0].itemsArray
-    for (let items of this.itemArray) {
-      let data = {
-        listId: listId,
-        itemId: items.itemId,
-        itemName: items.itemName,
-        done: items.done,
-        subItems: items.subItems,
-        createdOn: items.createdOn
-      }
-      this.appService.replaceItem(data).subscribe(
+
+      this.appService.updateHistoryFunction(listId).subscribe(
         (response) => {
           if (response.status !== 200) {
             this.toastr.warning(response.message)
@@ -1240,32 +1281,20 @@ export class DashboardComponent implements OnInit {
           this.router.navigate(['/servererror'])
         }
       )
-    }
+      this.getAllHistory(listId)
+      this.getAllItem(listId)
+      for (let list of this.currentList) {
+        if (list.privacy === false) {
 
-    this.appService.updateHistoryFunction(listId).subscribe(
-      (response) => {
-        if (response.status !== 200) {
-          this.toastr.warning(response.message)
+          let notifcationData = {
+            message: `A Undo has been done by ${this.cookieService.get('UserName')} in ${list.listName} List.`,
+            userId: this.friendsId
+          }
+          this.notifyUpdatesToUser(notifcationData);
+
         }
-      },
-      (error) => {
-        this.router.navigate(['/servererror'])
-      }
-    )
-    this.getAllHistory(listId)
-    this.getAllItem(listId)
-    for (let list of this.currentList) {
-      if (list.privacy === false) {
-
-        let notifcationData = {
-          message: `A Undo has been done by ${this.cookieService.get('UserName')} in ${list.listName} List.`,
-          userId: this.friendsId
-        }
-        this.notifyUpdatesToUser(notifcationData);
-
       }
     }
-  }
   }
 
   @HostListener('document:keydown', ['$event'])
