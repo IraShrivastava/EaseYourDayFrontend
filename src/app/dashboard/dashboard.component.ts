@@ -291,6 +291,7 @@ export class DashboardComponent implements OnInit {
                 object.splice(index, 1)
               }
             })
+            
           } else {
             this.toastr.info(response.message)
           }
